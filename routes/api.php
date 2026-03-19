@@ -11,11 +11,11 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/agents/topic-research', function (Request $request) {
     $user = User::first();
-    //dd($request->input('prompt'));
     try {
-        $response = (new TopicResearchAgent($user))->forUser($user)->prompt($request->input('prompt'));
+        $response = (new TopicResearchAgent($user,$request))->forUser($user)->prompt($request->input('prompt'));
 
         return response()->json([
+                                    'data' => $response,
                                     'message' => 'success',
                                 ]);
     } catch (\Throwable $e) {

@@ -5,6 +5,7 @@ namespace App\Ai\Agents\Contents;
 use App\Models\AgentConversationMessage;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\File;
 use Laravel\Ai\Concerns\RemembersConversations;
@@ -21,7 +22,7 @@ class TopicResearchAgent implements Agent, Conversational, HasStructuredOutput, 
 {
     use Promptable, RemembersConversations;
 
-    public function __construct(public User $user) {}
+    public function __construct(public User $user, private Request $request) {}
 
     /**
      * Get the instructions that the agent should follow.
@@ -29,29 +30,10 @@ class TopicResearchAgent implements Agent, Conversational, HasStructuredOutput, 
     public function instructions(): Stringable|string
     {
         $template = File::get(resource_path('prompts/writing/topic-research.md'));
-        $prompt = Blade::render($template, [
-            'companyName' => 'Acme Corp',
-            'tier' => 'Pro',
-            'focusArea' => 'Content Marketing',
+       return Blade::render($template, [
+            'city' => $this->request->input('city') ?? '',
+            'location' => $this->request->input('location') ?? '',
         ]);
-        //dd($prompt);
-
-        return 'Role: You are an Expert Content Strategist and Research Analyst. Your goal is to transform a raw keyword or blog topic into a comprehensive, data-backed research dossier.
-
-Task: Conduct deep research on the provided [Topic/Keyword] using available web search tools. Research Requirements:
-
-Current Statistics: Find at least 3-5 relevant, high-quality statistics from the last 18–24 months. Include source URLs.
-
-Key Talking Points: Identify the essential sub-topics that must be covered to provide a "comprehensive" guide.
-
-Competitive Landscape: Analyze the top 3 ranking articles for this keyword. Note their structure and identify "Content Gaps" (what they missed).
-
-Trending Angles: Identify unique perspectives or recent news/controversies surrounding this topic to make the content feel timely.
-
-Source Material: Curate a list of 5 authoritative links (studies, whitepapers, or expert interviews) for further reading.
-
-Output Format:
-Please provide the results in a structured Markdown format with clear headings for Statistics, Outline Recommendations, Competitor Gaps, and Reference Links.';
     }
 
     /**
