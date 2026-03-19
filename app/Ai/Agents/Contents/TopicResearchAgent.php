@@ -5,6 +5,8 @@ namespace App\Ai\Agents\Contents;
 use App\Models\AgentConversationMessage;
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\File;
 use Laravel\Ai\Concerns\RemembersConversations;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\Conversational;
@@ -26,6 +28,14 @@ class TopicResearchAgent implements Agent, Conversational, HasStructuredOutput, 
      */
     public function instructions(): Stringable|string
     {
+        $template = File::get(resource_path('prompts/writing/topic-research.md'));
+        $prompt = Blade::render($template, [
+            'companyName' => 'Acme Corp',
+            'tier' => 'Pro',
+            'focusArea' => 'Content Marketing',
+        ]);
+        //dd($prompt);
+
         return 'Role: You are an Expert Content Strategist and Research Analyst. Your goal is to transform a raw keyword or blog topic into a comprehensive, data-backed research dossier.
 
 Task: Conduct deep research on the provided [Topic/Keyword] using available web search tools. Research Requirements:
@@ -76,7 +86,7 @@ Please provide the results in a structured Markdown format with clear headings f
     public function schema(JsonSchema $schema): array
     {
         return [
-            'value' => $schema->string()->required(),
+            'result' => $schema->string()->required(),
         ];
     }
 }

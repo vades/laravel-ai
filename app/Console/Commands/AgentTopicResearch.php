@@ -28,12 +28,12 @@ class AgentTopicResearch extends Command
     public function handle()
     {
         $this->info('Sending request to Gemini.');
-        $user = User::first(); // Replace with actual user retrieval logic
+        $user = User::first();
 
         try {
             $response = (new TopicResearchAgent($user))->forUser($user)->prompt('Create a comprehensive research dossier on the topic of "The Future of Remote Work". Include current statistics, key talking points, competitive landscape analysis, trending angles, and authoritative source material.');
             $this->info('Response received:');
-            $this->info($response);
+            $this->info($response['result']);
         } catch (\Exception $e) {
             $this->error('Error: '.$e->getMessage());
         } catch (\Throwable $e) {
